@@ -1,4 +1,3 @@
-package Proj1;
 
 public class Deque<Item> {
 	Item itm;

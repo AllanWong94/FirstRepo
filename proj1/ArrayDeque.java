@@ -1,8 +1,16 @@
-package Proj1;
 
-import Proj1.LinkedListDeque.ItemNode;
 
 public class ArrayDeque<Item> {
+	public class ItemNode<Item> {
+		public Item itm;
+		public ItemNode next;
+		public ItemNode prev;
+		public ItemNode(Item item, ItemNode pre, ItemNode nxt){
+			itm=item;
+			next=nxt;
+			prev=pre;
+		}
+	}
 	private int size;
 	private int nextFirst;
 	private int nextLast;
