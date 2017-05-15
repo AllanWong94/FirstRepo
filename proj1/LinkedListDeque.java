@@ -1,4 +1,3 @@
-package Proj1;
 
 import java.awt.List;
 import java.util.ArrayList;
@@ -41,15 +40,21 @@ public class LinkedListDeque<Item> {
 		lastnode=itemnode.next;
 	}
 	public void addFirst(Item item){
+		ItemNode newNode=new ItemNode(item, itemnode, null);
+		if (size==0){
+			itemnode.next=newNode;
+			size+=1;
+			return;
+		}
 		ItemNode oldNode=itemnode.next;
-		itemnode.next=new ItemNode(item, itemnode, oldNode);
-		oldNode=lastnode;
+		newNode.next=oldNode;
+		itemnode.next=newNode;
+		oldNode.prev=newNode;
 		size+=1;
 	}
 	public void addLast(Item item){
-		ItemNode newnode=new ItemNode<Item>(item, lastnode, null);
 		size+=1;
-		ItemNode p=itemnode;
+		ItemNode newnode=new ItemNode<Item>(item, lastnode, null);
 		lastnode.next=newnode;
 		lastnode=newnode;
 	}
@@ -70,9 +75,17 @@ public class LinkedListDeque<Item> {
 		return;
 	}
 	public Item removeFirst(){
+		if (size==0){
+			return null;
+		}
 		Item temp=(Item) itemnode.next.itm;
+		if (size==1){
+			itemnode.next=null;
+			size-=1;
+			return temp;
+		}
+		itemnode.next.next.prev=itemnode;
 		itemnode.next=itemnode.next.next;
-		itemnode.next.prev=itemnode;
 		size-=1;
 		return temp;
 	}
