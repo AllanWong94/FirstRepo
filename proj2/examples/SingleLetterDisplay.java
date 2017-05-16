@@ -127,9 +127,9 @@ public class SingleLetterDisplay extends Application {
     /** An EventHandler to handle changing the color of the rectangle. */
     private class RectangleBlinkEventHandler implements EventHandler<ActionEvent> {
         private int currentColorIndex = 0;
-        private Color[] boxColors =
-                {Color.LIGHTPINK, Color.ORANGE, Color.YELLOW,
-                        Color.GREEN, Color.LIGHTBLUE, Color.PURPLE};
+        private Color[] boxColors ={Color.BLACK, Color.WHITE};
+                //{Color.LIGHTPINK, Color.ORANGE, Color.YELLOW,
+                  //      Color.GREEN, Color.LIGHTBLUE, Color.PURPLE};
 
         RectangleBlinkEventHandler() {
             // Set the color to be the first color in the list.
