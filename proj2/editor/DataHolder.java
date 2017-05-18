@@ -1,6 +1,9 @@
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * Created by Allan Wong on 2017/5/17.
@@ -12,6 +15,7 @@ public class DataHolder {
     private double spacing;
     private double cursorPosY;
     private double cursorPosX;
+    private double YOffset;
     private int size;
     private int textX=5;
     private int textY=0;
@@ -25,6 +29,9 @@ public class DataHolder {
     private String fontName = "Verdana";
     private static final int WINDOW_MARGIN = 5;
     private javafx.scene.shape.Rectangle textBoundingBox;
+    private UndoArray<String> undoArray_rawData;
+    private UndoArray<Integer> undoArray_cursorPos;
+    
 
     public DataHolder(Rectangle rec){
     	displayText = new Text(textX, textY, "");
@@ -34,6 +41,9 @@ public class DataHolder {
         windWidth=500;
         windHeight=500;
         rawData="";
+        YOffset=0;
+        undoArray_rawData=new UndoArray<String>(100);
+        undoArray_cursorPos=new UndoArray<Integer>(100);
     }
 
     public void append(String s){
@@ -41,6 +51,10 @@ public class DataHolder {
            							s + rawData.substring(curCursorPos,rawData.length());
                 size += 1;
                 curCursorPos+=1;
+                undoArray_cursorPos.removeToLast();
+                undoArray_rawData.removeToLast();
+        		undoArray_rawData.add(rawData);
+        		undoArray_cursorPos.add(curCursorPos);
     }
     /*Return a string that is ready to be displayed by the displayText with the window width
             * Input param: The window width in double
@@ -68,7 +82,7 @@ public class DataHolder {
             c = rawData.charAt(i);
             if (i == 0){
                 temp = String.valueOf(c);
-                double[] k=new double[]{textX, textY};//Add the starting position of the cursor to cursorPos
+                double[] k=new double[]{cursorPosX, cursorPosY};//Add the starting position of the cursor to cursorPos
                 cursorPos.add(k);
             }
             else{
@@ -111,23 +125,17 @@ public class DataHolder {
 
     public void updateCursorPos(){
     	size=rawData.length();
-    	String temp=null;
+    	String temp="";
         char c;
         double linewidth;
         int lastIndex=0;
         cursorPosX=WINDOW_MARGIN;
-        cursorPosY=0;
+        cursorPosY=YOffset;
         cursorPos.clear();
-        for (int i=0; i<rawData.length();i++) {
+        cursorPos.add(new double[]{cursorPosX, cursorPosY});
+        for (int i=0; i<size;i++) {
             c = rawData.charAt(i);
-            if (i == 0){
-                temp = String.valueOf(c);
-                double[] k=new double[]{cursorPosX, cursorPosY};//Add the starting position of the cursor to cursorPos
-                cursorPos.add(k);
-            }
-            else{
-                temp=temp+c;
-            }
+            temp=temp+c;
             charwidth=measureCharWidth(c);
             charheight=measureCharHeight(c);
             spacing=displayText.getLineSpacing();
@@ -219,18 +227,22 @@ public class DataHolder {
 	    	curCursorPos-=1;
     		System.out.println("size: "+size+"\ncurCursorPos: "+curCursorPos);
 	    	render();
+    		undoArray_rawData.add(rawData);
+    		undoArray_cursorPos.add(curCursorPos);
     	}
        
     }
     
     public void render() {
+    	displayText.setY(YOffset);
         displayText.setText(print());
+        updateCursorPos();
         setCursor(curCursorPos);
-        UpdateBoundingBox();
     }
 
     public void setCursorBack(){
     	curCursorPos=rawData.length();
+    	undoArray_cursorPos.setData(curCursorPos);
     }
     
     public void nextLine(double spacing, double charh){
@@ -268,7 +280,7 @@ public class DataHolder {
         double[] next=new double[]{-1,-1};
         double[] prev=new double[]{-2,-1};
         double[] orig=cursorPos.get(curPos);
-        while((next[0]-prev[0])>0  &&  curPos<rawData.length()-1){
+        while((next[0]-prev[0])>0  &&  curPos<rawData.length()){
             prev=cursorPos.get(curPos);
             curPos+=1;
             next=cursorPos.get(curPos);
@@ -278,7 +290,7 @@ public class DataHolder {
             curPos += 1;
             next = cursorPos.get(curPos);
         }
-        if ((next[0]-orig[0])>(orig[0]-prev[0])&&(next[0]>orig[0])){
+        if ((next[0]-orig[0])>(orig[0]-prev[0])&&(next[0]>orig[0])&&(curPos!=rawData.length())){
             curPos-=1;
         }
         setCursor(curPos);
@@ -311,9 +323,11 @@ public class DataHolder {
     }
 
     public void setCursor(int n){
-        double[] temp=cursorPos.get(n);
+    	curCursorPos=n;
+        double[] temp=cursorPos.get(curCursorPos);
         cursorPosX=temp[0];
         cursorPosY=temp[1];
+        OffsetCursorPosY();
         UpdateBoundingBox();
     }
 
@@ -332,11 +346,21 @@ public class DataHolder {
 
     public void setRawData(String s){
     	rawData=s;
+    	undoArray_rawData.setData(rawData);
     }
-    public void setCursorPos(double x, double y){
-		
+    
+    public void OffsetCursorPosY(){
+		cursorPosY+=YOffset;
+	}
+    
+    public void setCursorPosX(double x){
+		cursorPosX=x;
 	}
 
+    public void setYOffset(double y){
+    	YOffset=y;
+    }
+    
 	public void setWindWidth(double w){
     	windWidth=w;
     }
@@ -348,9 +372,60 @@ public class DataHolder {
     public String returnRawData(){
     	return rawData;
     }
-
-
-
-
-
+    
+    public int findClosest(double[] X){
+    	double minRange=findRange(X, cursorPos.get(0));
+    	double range=0;
+    	int index=0;
+    	for (int i=0;i<cursorPos.size();i++){
+    		range=findRange(X, cursorPos.get(i));
+    		if(range<minRange){
+    			minRange=range;
+    			index=i;
+    		}
+    	}
+    	return index;
+    }
+    
+    public double findRange(double[] X,double[] Y){
+    	double range=Math.sqrt((X[0]-Y[0])*(X[0]-Y[0])+(X[1]-Y[1])*(X[1]-Y[1]));
+    	return range;
+    }
+    
+    public void undo(){
+    	if (undoArray_rawData.size()==0){
+    		undoArray_cursorPos.setData(curCursorPos);
+    		undoArray_rawData.setData(rawData);
+    	}
+    	rawData=undoArray_rawData.undo();
+    	curCursorPos=undoArray_cursorPos.undo();
+    	render();
+    }
+    
+    public void redo(){
+    	rawData=undoArray_rawData.redo();
+    	curCursorPos=undoArray_cursorPos.redo();
+    	render();
+    }
+    
+    public void fontUp(int step){
+    	fontSize += step;
+    	displayText.setFont(Font.font(fontName, fontSize));
+    	displayText.setText(print());
+    	render();
+    }
+    
+    public void printCursorPos(){
+    	System.out.println("Cursor coordinates:");
+    	System.out.println("X: "+cursorPosX);
+    	System.out.println("Y: "+cursorPosY);
+    }
+    
+    
+    public void fontDown(int step){
+    	fontSize -= step;
+    	displayText.setFont(Font.font(fontName, fontSize));
+    	displayText.setText(print());
+    	render();
+    }
 }

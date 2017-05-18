@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
@@ -6,12 +8,15 @@ import javafx.scene.text.Text;
 public class Test {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		String[] s=new String[]{"Hello","world","!"};
-		
-		FileHandler fh=new FileHandler("G:\\Workspace\\Git_Allan\\proj2\\editor\\1.txt", "C:\\Users\\Allan Wong\\Git_Allan\\proj2\\editor\\2.txt");
-		System.out.println(fh.Read());
-		fh.Save(s[0]);
+		UndoArray<String> al=new UndoArray<String>(5);
+		al.add("H");
+		al.add("He");
+		al.add("Hel");
+		al.add("Hell");
+		al.add("Hello");
+		al.setCursor(3);
+		al.removeToLast();
+		al.print();
 	}
 
 }

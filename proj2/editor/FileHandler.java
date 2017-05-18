@@ -51,6 +51,8 @@ public class FileHandler {
 			FileWriter writer = new FileWriter(outputFilename);
 			for (char c:s.toCharArray()){
 				writer.write(c);
+				if (c=='\n')				
+					writer.write("\r\n");
 			}
             System.out.println("Successfully saved file to "
                     + outputFilename);
