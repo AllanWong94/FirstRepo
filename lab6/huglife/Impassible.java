@@ -8,6 +8,7 @@ public class Impassible extends Occupant {
 
     /** Returns hardcoded black */
     public Color color() {
-        return color(0, 0, 0);
+    	System.out.println("Hi");
+        return color(100, 100, 100);
     }    
 }

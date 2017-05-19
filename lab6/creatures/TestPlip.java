@@ -39,13 +39,13 @@ public class TestPlip {
 
     }
 
-    //@Test
+    @Test
     public void testChoose() {
-        Plip p = new Plip(1.2);
+        Plip p = new Plip(0.8);
         HashMap<Direction, Occupant> surrounded = new HashMap<Direction, Occupant>();
         surrounded.put(Direction.TOP, new Impassible());
         surrounded.put(Direction.BOTTOM, new Impassible());
-        surrounded.put(Direction.LEFT, new Impassible());
+        surrounded.put(Direction.LEFT, new Empty());
         surrounded.put(Direction.RIGHT, new Impassible());
 
         //You can create new empties with new Empty();

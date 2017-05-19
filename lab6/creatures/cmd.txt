@@ -1,0 +1,4 @@
+javac -g huglife/*.java creatures/*.java
+java huglife.HugLife sampleplip
+
+java huglife.HugLife strugggz

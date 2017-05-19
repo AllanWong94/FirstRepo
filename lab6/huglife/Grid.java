@@ -186,6 +186,9 @@ public class Grid {
         for (int x = 0; x < N; x += 1) {
             for (int y = 0; y < N; y += 1) {
                 Occupant o = getOccupant(x, y);
+                if(o.name=="impassible"){
+                	System.out.println(o.color());
+                }
                 StdDraw.setPenColor(o.color());
                 StdDraw.filledSquare(x + 0.5, y + 0.5, 0.45);
             }
