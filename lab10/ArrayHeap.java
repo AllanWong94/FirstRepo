@@ -12,7 +12,13 @@ public class ArrayHeap<T> {
 	 * Inserts an item with the given priority value. This is enqueue, or offer.
 	 */
 	public void insert(T item, double priority) {
-
+		int index=contents.size();
+		if (index==0){
+			contents.add(null);
+			index=1;
+		}
+		contents.add(new Node(item, priority));
+		bubbleUp(index);
 	}
 
 	/**
@@ -20,8 +26,7 @@ public class ArrayHeap<T> {
 	 * from the heap.
 	 */
 	public Node peek() {
-		// TODO Complete this method!
-		return null;
+		return contents.get(1);
 	}
 
 	/**
@@ -29,10 +34,25 @@ public class ArrayHeap<T> {
 	 * the heap. This is dequeue, or poll.
 	 */
 	public Node removeMin() {
-		// TODO Complete this method!
-		return null;
+		int rightMost=getRightMost();
+		int last=contents.size()-1;
+		swap(1, rightMost);
+		swap(last, rightMost);
+		Node node=contents.remove(last);
+		bubbleDown(1);
+		bubbleUp(rightMost);
+		return node;
 	}
 
+	public int getRightMost(){
+		int i=1;
+		while(rightExist(i)){
+			i=getRightOf(i);
+		}
+		return i;
+	}
+	
+	
 	/**
 	 * Change the node in this heap with the given item to have the given
 	 * priority. For this method only, you can assume the heap will not have two
@@ -102,54 +122,113 @@ public class ArrayHeap<T> {
 	 * Returns the index of the node to the left of the node at i.
 	 */
 	private int getLeftOf(int i) {
-		// TODO Complete this method!
-		return 0;
+		return i*2;
 	}
 
 	/**
 	 * Returns the index of the node to the right of the node at i.
 	 */
 	private int getRightOf(int i) {
-		// TODO Complete this method!
-		return 0;
+		return i*2+1;
 	}
 
 	/**
 	 * Returns the index of the node that is the parent of the node at i.
 	 */
 	private int getParentOf(int i) {
-		// TODO Complete this method!
-		return 0;
+		return i/2;
 	}
 
 	/**
 	 * Adds the given node as a left child of the node at the given index.
 	 */
 	private void setLeft(int index, Node n) {
-		// TODO Complete this method!
+		contents.set(index*2, n);
 	}
 
 	/**
 	 * Adds the given node as the right child of the node at the given index.
 	 */
-	private void setRight(int inde, Node n) {
-		// TODO Complete this method!
+	private void setRight(int index, Node n) {
+		contents.set(index*2+1, n);
 	}
 
 	/**
 	 * Bubbles up the node currently at the given index.
 	 */
 	private void bubbleUp(int index) {
-		// TODO Complete this method!
+		int parentInd=getParentOf(index);
+		if(Fit(index)){
+			if(parentInd>0)
+			bubbleUp(parentInd);
+			return;
+		}
+		if (rightExist(index)&&(!leftSmaller(index))){
+			swap(index, getRightOf(index));
+		}else{
+			swap(index, getLeftOf(index));
+		}
+		if(parentInd>0)
+		bubbleUp(parentInd);
+		
 	}
-
+	//returns true if the left exists.
+	public boolean leftExist(int index){
+			return getLeftOf(index)+1<=contents.size();
+	}
+	//returns true if the right exists.
+	public boolean rightExist(int index){
+		return getRightOf(index)+1<=contents.size();
+	}
+	//presume right exists.
+	public boolean leftSmaller(int index){
+		return contents.get(getLeftOf(index)).priority()<=contents.get(getRightOf(index)).priority();
+	}
+	
 	/**
 	 * Bubbles down the node currently at the given index.
 	 */
-	private void bubbleDown(int inex) {
-		// TODO Complete this method!
+	private void bubbleDown(int index) {
+		if(Fit(index)){
+			return;
+		}
+		int swapee=0;
+		if(leftExist(index)){
+			double left=contents.get(getLeftOf(index)).priority();
+			if(rightExist(index)){
+				double right=contents.get(getRightOf(index)).priority();
+				if (left<=right){
+					swapee=getLeftOf(index);
+				}else{
+					swapee=getRightOf(index);
+				}
+			}else{
+				swapee=getLeftOf(index);
+			}
+			swap(index, swapee);
+			bubbleDown(swapee);
+		}
 	}
 
+	private boolean Fit(int index){
+		int leftInd=getLeftOf(index);
+		if(leftInd+1>contents.size())
+			return true;
+		double left=contents.get(getLeftOf(index)).priority();
+		double pri=contents.get(index).priority();
+		if(pri>left){
+			return false;
+		}
+		int rightInd=getRightOf(index);
+		if(rightInd+1<=contents.size()){
+			double right=contents.get(getRightOf(index)).priority();
+			if(pri>right){
+				return false;
+			}
+		}
+		
+		return true;
+	}
 	/**
 	 * Returns the index of the node with smaller priority. Precondition: Not
 	 * both of the nodes are null.
@@ -203,6 +282,8 @@ public class ArrayHeap<T> {
 		heap.insert("b", 2);
 		heap.insert("c", 3);
 		heap.insert("d", 4);
+		System.out.println(heap);
+		heap.removeMin();
 		System.out.println(heap);
 	}
 

@@ -34,16 +34,17 @@ public class TestSimpleOomage {
         assertNotEquals(ooA, ooB);
         assertNotEquals(ooA2, ooB);
         assertNotEquals(ooA, "ketchup");
+        assertNotEquals(ooA, null);
     }
 
-    /*@Test
+    @Test
     public void testHashCodeAndEqualsConsistency() {
         SimpleOomage ooA = new SimpleOomage(5, 10, 20);
         SimpleOomage ooA2 = new SimpleOomage(5, 10, 20);
         HashSet<SimpleOomage> hashSet = new HashSet<SimpleOomage>();
         hashSet.add(ooA);
         assertTrue(hashSet.contains(ooA2));
-    }*/
+    }
 
     /** Calls tests for SimpleOomage. */
     public static void main(String[] args) {
