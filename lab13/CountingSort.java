@@ -43,6 +43,26 @@ public class CountingSort {
         return sorted;
     }
 
+    public static int findMin(int[] arr){
+    	int min=Integer.MAX_VALUE;
+    	for(int i:arr){
+    		if(i<min)
+    			min=i;
+    	}
+    	return min;
+    }
+    
+    public static int findMax(int[] arr){
+    	int max=Integer.MIN_VALUE;
+        for (int i : arr) {
+            if (i > max) {
+                max = i;
+            }
+        }
+        return max;
+    }
+
+
     /**
      * Counting sort on the given int array, must work even with negative numbers.
      * Note, this code does not need to work for ranges of numbers greater
@@ -52,7 +72,44 @@ public class CountingSort {
      * @param toSort int array that will be sorted
     **/
     public static int[] betterCountingSort(int[] toSort) {
-        //TODO make it work with arrays containing negative numbers.
-        return null;
+    	//find the minimum
+    	int min=findMin(toSort);
+    	if(min>=0){
+    		return naiveCountingSort(toSort);
+    	}
+    	int max=findMax(toSort);
+    	int[] negativeCounts=new int[-1*min+1];
+    	for(int i:toSort){
+    		if(i<=0){
+    			negativeCounts[-1*i]+=1;
+    		}
+    	}
+    	int[] sorted=new int[toSort.length];
+    	int k=0;
+    	for (int i=negativeCounts.length-1;i>=0;i--){
+    		for(int j=0;j<negativeCounts[i];j++,k++){
+    			sorted[k]=i*-1;
+    		}
+    	}
+        if(max<=0){
+        	return sorted;
+        }
+        int numOfPos=toSort.length-k;
+    	int[] positiveArr=new int[numOfPos];
+    	int l=0;
+    	for(int j:toSort){
+    		if(j>0){
+    			positiveArr[l]=j;
+    			l++;
+    		}
+    	}
+    	int[] sortedPosArr=naiveCountingSort(positiveArr);
+    	System.arraycopy(sortedPosArr, 0, sorted, k, sortedPosArr.length);
+    	
+    	
+    	
+    	
+    	
+        return sorted;
     }
 }
